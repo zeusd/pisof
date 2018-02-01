@@ -14,7 +14,7 @@ struct Chaka6t
 };
 
 template <typename T>
-void kopirai_kup4ina(Chaka6t<T>*& vTuk, Chaka6t<T>* otTuk)
+void kopirai_kup4ina(Chaka6t<T>* vTuk, Chaka6t<T>* otTuk)
 {
     if(otTuk != nullptr)
     {
@@ -22,8 +22,8 @@ void kopirai_kup4ina(Chaka6t<T>*& vTuk, Chaka6t<T>* otTuk)
         vTuk->predimstvo = otTuk->predimstvo;
         vTuk->tqlo = otTuk->tqlo;
 
-        kopirai_kup4ina(*vTuk->lqv, otTuk->lqv);
-        kopirai_kup4ina(*vTuk->desen, otTuk->desen);
+        kopirai_kup4ina(vTuk->lqv, otTuk->lqv);
+        kopirai_kup4ina(vTuk->desen, otTuk->desen);
     }
 }
 
@@ -40,43 +40,49 @@ void trii_kup4ina(Chaka6t<T>* koren)
 }
 
 template <typename T>
-void vkarai_v_opa6ka(Chaka6t<T>*& purvi, Chaka6t<T> nov)
+void vkarai_v_opa6ka(Chaka6t<T>* purvi, Chaka6t<T> nov)
 {
+    if(purvi == nullptr)
+    {
+        return;
+    }
+
     if(purvi->predimstvo < nov.predimstvo)
     {
-        if(purvi->lqv == nullptr)
-        {
-            Chaka6t<T> ne_ba6_nov;
-            ne_ba6_nov.predimstvo = purvi->predimstvo;
-            ne_ba6_nov.tqlo = purvi->tqlo;
-            vkarai_v_opa6ka(purvi->lqv, ne_ba6_nov);
-        }
-        else
-        {
-            Chaka6t<T> ne_ba6_nov;
-            ne_ba6_nov.predimstvo = purvi->predimstvo;
-            ne_ba6_nov.tqlo = purvi->tqlo;
-            vkarai_v_opa6ka(purvi->desen, ne_ba6_nov);
-        }
+        Chaka6t<T> ne_ba6_nov;
+        ne_ba6_nov.predimstvo = purvi->predimstvo;
+        ne_ba6_nov.tqlo = purvi->tqlo;
 
         purvi->predimstvo = nov.predimstvo;
         purvi->tqlo = nov.tqlo;
+
+        vkarai_v_opa6ka(purvi, ne_ba6_nov);
     }
     else
     {
-        if(purvi->lqv == nullptr)
+        if(purvi->desen == nullptr)
         {
-            vkarai_v_opa6ka(purvi->lqv, nov);
+            purvi->desen = new Chaka6t<T>;
+
+            purvi->desen->predimstvo = nov.predimstvo;
+            purvi->desen->tqlo = nov.tqlo;
+        }
+        else if(purvi->lqv == nullptr)
+        {
+            purvi->lqv = new Chaka6t<T>;
+
+            purvi->lqv->predimstvo = nov.predimstvo;
+            purvi->lqv->tqlo = nov.tqlo;
         }
         else
         {
-            vkarai_v_opa6ka(purvi->desen, nov);
+            vkarai_v_opa6ka(purvi->lqv, nov);
         }
     }
 }
 
 template <typename T>
-void vkarai_opa6ka_v_opa6ka(Chaka6t<T>*& tazi, Chaka6t<T>*& vTazi)
+void vkarai_opa6ka_v_opa6ka(Chaka6t<T>* tazi, Chaka6t<T>* vTazi)
 {
     if(vTazi != nullptr && tazi != nullptr)
     {
@@ -103,7 +109,7 @@ void vkarai_opa6ka_v_opa6ka(Chaka6t<T>*& tazi, Chaka6t<T>*& vTazi)
 }
 
 template <typename T>
-Chaka6t<T>* izkarai_ot_opa6ka(Chaka6t<T>*& purvi)
+Chaka6t<T>* izkarai_ot_opa6ka(Chaka6t<T>* purvi)
 {
     if(purvi == nullptr)
     {
@@ -140,13 +146,22 @@ public:
 
     void vkarai(Chaka6t<T> chaka4)
     {
-        vkarai_v_opa6ka(purvi, chaka4);
+        if(prazna())
+        {
+            purvi = new Chaka6t<T>;
+            purvi->predimstvo = chaka4.predimstvo;
+            purvi->tqlo = chaka4.tqlo;
+        }
+        else
+        {
+            vkarai_v_opa6ka(purvi, chaka4);
+        }
     }
 
     Chaka6t<T> dai_purvi()
     {
         Chaka6t<T> rezultat;
-        if(purvi != nullptr)
+        if(!prazna())
         {
             Chaka6t<T>* paza4 = izkarai_ot_opa6ka(purvi);
             rezultat.predimstvo = paza4->predimstvo;
@@ -176,7 +191,7 @@ private:
 int main()
 {
     Chaka6t<char> ivan;
-    ivan.predimstvo = 1;
+    ivan.predimstvo = 3;
     ivan.tqlo = 'i';
 
     Chaka6t<char> dragan;
@@ -184,14 +199,14 @@ int main()
     dragan.tqlo = 'd';
 
     Chaka6t<char> petkan;
-    petkan.predimstvo = 3;
+    petkan.predimstvo = 1;
     petkan.tqlo = 'p';
 
     Opa6ka<char> pred_bani4arnicata;
 
+    pred_bani4arnicata.vkarai(petkan);
     pred_bani4arnicata.vkarai(dragan);
     pred_bani4arnicata.vkarai(ivan);
-    pred_bani4arnicata.vkarai(petkan);
 
-    cout<<pred_bani4arnicata.dai_purvi().tqlo;
+    assert(pred_bani4arnicata.dai_purvi().tqlo == 'i');
 }
